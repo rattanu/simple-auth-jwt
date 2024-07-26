@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+      }
+
+      .container {
+        max-width: 400px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        text-align: center;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Login</h2>
+      <form id="loginForm" onsubmit="login(event)">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+
+        <input type="submit" value="Login" />
+        <button type="button" onclick="getUsers()">Get Users</button>
+      </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <script>
+      const login = async (event) => {
+        event.preventDefault(); // ป้องกันการส่งค่าฟอร์มแบบปกติ
+        const email = document.querySelector('#username').value;
+        const password = document.querySelector('#password').value;
+        try {
+          const response = await axios.post("http://localhost:8000/api/login", {
+            email,
+            password
+          },{
+            // withCredentials: true
+          });
+          console.log(response.data);
+          localStorage.setItem('token', response.data.token);
+          // เพิ่มตรงนี้โลจิกสำหรับเข้าสู่ระบบ เช่น ส่งคำขอไปยังเซิร์ฟเวอร์อื่นๆ
+        } catch (error) {
+          console.error('Login error:', error);
+          alert('Login failed. Please try again.');
+        }
+      };
+    
+      const getUsers = async () => {
+        try {
+          const authToken = localStorage.getItem('token');
+          const response = await axios.get('http://localhost:8000/api/users', {
+            headers: {
+              'Authorization': `Bearer ${authToken}`
+            }
+          });
+          console.log('Users data:', response.data);
+          // เพิ่มตรงนี้โลจิกสำหรับการดึงข้อมูลผู้ใช้
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to retrieve users.');
+        }
+      };
+    
+    </script>
+  </body>
+</html>
